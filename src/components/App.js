@@ -5,6 +5,7 @@ import '../styles/notification.css'
 import LandingPage from './LandingPage';
 import LoadingSpinner from './LoadingSpinner';
 import { getAuthStateFromSession } from '../actions/index';
+import '../styles/app.css';
 class App extends React.Component
 {
     componentDidMount()
