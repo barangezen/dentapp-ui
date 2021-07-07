@@ -26,7 +26,8 @@ const notification = {
                 </button>
             </span>
         ));
-    }
+    },
+    remove: () => { toast.remove(); }
 };
 
 export default notification;

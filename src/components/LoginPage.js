@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import { connect } from 'react-redux';
 import { login } from '../actions/index'
 
-class LoginForm extends React.Component
+class LoginPage extends React.Component
 {
     constructor(props)
     {
@@ -62,4 +62,4 @@ class LoginForm extends React.Component
     }
 }
 
-export default connect(null, { login })(LoginForm);
+export default connect(null, { login })(LoginPage);

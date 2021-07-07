@@ -1,0 +1,15 @@
+#header li {
+    /* border: 1px solid lightgrey; */
+    border-radius: 1rem;
+    margin-top: 1rem;
+}
+
+#header li:hover {
+    background-color: #02ACC1;
+    transition: all 150ms;
+}
+
+#header a {
+    text-decoration: none;
+    color: white;
+}

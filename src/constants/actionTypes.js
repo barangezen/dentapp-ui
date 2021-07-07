@@ -1,5 +1,5 @@
 export const LOGIN = "LOGIN";
 export const LOGOUT = "LOGOUT";
 
-export const ADD_ALERT = "ADD_ALERT";
-export const CLEAR_ALERTS = "CLEAR_ALERTS";
+export const INVALIDATE_ALL = "INVALIDATE_ALL";
+export const ADD_GROUPS = "ADD_GROUPS";
