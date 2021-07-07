@@ -167,6 +167,10 @@ export const addUser = (formValues) => async (dispatch, getState) => {
 
         if (error.response.status == 401) {
             notification.error("Your session has been expired. Please login to continue.");
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            history.push("/");
+            dispatch({ type: INVALIDATE_ALL });
             return;
         }
 

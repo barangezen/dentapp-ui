@@ -10,7 +10,7 @@ const INITIAL_STATE = {
 const groupReducer = (state = INITIAL_STATE, action) => {
     switch(action.type) {
         case ADD_GROUPS:
-            return { ...state, groups: [...state.groups, ...action.payload] };
+            return { ...state, groups: [...action.payload] };
         case INVALIDATE_ALL:
             return INITIAL_STATE;
         default:
