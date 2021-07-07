@@ -1,0 +1,16 @@
+.toaster div[role="status"] {
+    justify-content: flex-start !important;
+}
+
+div.toaster > div > div {
+    min-width: 50vw;
+    max-width: 50vw;
+}
+
+
+@media screen and (max-width: 992px){
+    div.toaster > div > div {
+        min-width: 80vw;
+        max-width: 80vw;
+    }
+}

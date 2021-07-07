@@ -6,6 +6,7 @@ import {
 } from '../constants/actionTypes';
 
 import dentapp from '../api/dentapp';
+import notification from '../utility/Notification';
 
 export const login = (email, password) => async (dispatch, getState) => {
     try {
@@ -22,13 +23,7 @@ export const login = (email, password) => async (dispatch, getState) => {
             }
         });
 
-        dispatch({
-            type: ADD_ALERT,
-            payload: {
-                type: "success",
-                message: `Welcome back, ${response.data.user.first_name} ${response.data.user.last_name}.`
-            }
-        });
+        notification.success(`Welcome back, ${response.data.user.first_name} ${response.data.user.last_name}`);
     } catch (error) {
         let errors = [];
 
@@ -41,29 +36,11 @@ export const login = (email, password) => async (dispatch, getState) => {
         }
 
         if (errors.length == 0) {
-            dispatch({
-                type: ADD_ALERT,
-                payload: {
-                    type: "error",
-                    message: "An error occurred. Please contact with support."
-                }
-            });
+            notification.error('An error occurred. Please contact with support.');
         } else {
             errors.forEach(error_message => {
-                dispatch({
-                    type: ADD_ALERT,
-                    payload: {
-                        type: "error",
-                        message: error_message
-                    }
-                });
+                notification.error(error_message);
             });
         }  
-    } finally {
-        setTimeout(() => {
-            dispatch({
-                type: CLEAR_ALERTS
-            });
-        }, 5000);
     }
 };

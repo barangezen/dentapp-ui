@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
-
+import '../styles/notification.css'
 class App extends React.Component
 {
     render()
