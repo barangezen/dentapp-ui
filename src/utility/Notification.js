@@ -1,4 +1,5 @@
 import toast from "react-hot-toast";
+import crypto from 'crypto';
 
 const notification = {
     error: (message) => {
@@ -26,7 +27,8 @@ const notification = {
                 </button>
             </span>
         ));
-    }
+    },
+    remove: () => { toast.remove(); }
 };
 
 export default notification;

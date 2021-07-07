@@ -1,20 +1,33 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import LoginForm from './LoginForm';
+import LoginPage from './LoginPage';
 import '../styles/notification.css'
+import LandingPage from './LandingPage';
+import LoadingSpinner from './LoadingSpinner';
+import { getAuthStateFromSession } from '../actions/index';
 class App extends React.Component
 {
+    componentDidMount()
+    {
+        if (this.props.auth.isLoggedIn === null) {
+            this.props.getAuthStateFromSession();
+        }
+    }
+
+    renderLandingPage()
+    {
+        if (this.props.auth.isLoggedIn === null) {
+            return <LoadingSpinner />;
+        } else if (this.props.auth.isLoggedIn === false) {
+            return <LoginPage />;
+        } else {
+            return <LandingPage />;
+        }
+    }
+
     render()
     {
-        if (this.props.auth.isLoggedIn) {
-            return <div>Logged in.</div>;
-        } else {
-            return (
-                <React.Fragment>
-                    <LoginForm />
-                </React.Fragment>
-            );
-        }
+        return this.renderLandingPage();
     }
 }
 
@@ -24,4 +37,8 @@ const mapStateToProps = state => {
     };
 };
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = {
+    getAuthStateFromSession: getAuthStateFromSession
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
