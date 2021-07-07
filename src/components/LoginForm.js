@@ -12,7 +12,7 @@ class LoginForm extends React.Component
         this.passwordRef = createRef();
     }
 
-    onLoginButtonClick = e => {
+    onClickLoginButton = e => {
         this.props.login(
             this.emailRef.current.value,
             this.passwordRef.current.value
@@ -51,7 +51,7 @@ class LoginForm extends React.Component
                         </div>
                     </div>
                     <button
-                        onClick={ e => { this.onLoginButtonClick(e); } }
+                        onClick={ e => { this.onClickLoginButton(e); } }
                         className="mt-3 btn btn-sm btn-dark btn-block"
                     >
                         Login
