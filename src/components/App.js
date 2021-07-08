@@ -4,7 +4,7 @@ import LoginPage from './LoginPage';
 import '../styles/notification.css'
 import LandingPage from './LandingPage';
 import LoadingSpinner from './LoadingSpinner';
-import { getAuthStateFromSession } from '../actions/index';
+import { getAuthStateFromSession, syncStateWithLocalStorage } from '../actions/index';
 import '../styles/app.css';
 class App extends React.Component
 {
@@ -13,6 +13,10 @@ class App extends React.Component
         if (this.props.auth.isLoggedIn === null) {
             this.props.getAuthStateFromSession();
         }
+
+        window.addEventListener('storage', () => {
+            this.props.syncStateWithLocalStorage();
+        });
     }
 
     renderLandingPage()
@@ -39,7 +43,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
-    getAuthStateFromSession: getAuthStateFromSession
+    getAuthStateFromSession: getAuthStateFromSession,
+    syncStateWithLocalStorage: syncStateWithLocalStorage
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,7 +1,6 @@
 import {
     LOGIN,
     LOGOUT,
-    INVALIDATE_ALL,
     ADD_GROUPS
 } from '../constants/actionTypes';
 
@@ -16,10 +15,27 @@ const clearLocalStorage = () => {
     localStorage.removeItem("token");
 }
 
-const handleErrors = (error) => {
+export const syncStateWithLocalStorage = () => async (dispatch, getState) =>{
+    const user = window.localStorage.getItem('user');
+    const token = window.localStorage.getItem('token');
+
+    if (user !== getState().auth.token || ! user) {
+        clearLocalStorage();
+        dispatch({
+            type: LOGOUT
+        });
+        history.push('/');
+        notification.error(messages.error.SESSION_EXPIRED);
+    }
+};
+
+const handleErrors = (error, dispatch) => {
     if (error.response) {
         if (error.response.status == 401) {
             clearLocalStorage();
+            dispatch({
+                type: LOGOUT
+            });
             history.push("/");
             notification.error(messages.error.SESSION_EXPIRED);
         } else {
@@ -93,7 +109,7 @@ export const login = (email, password) => async (dispatch, getState) => {
 
         notification.success(`Welcome back, ${response.data.user.first_name} ${response.data.user.last_name}`);
     } catch (error) {
-        handleErrors(error);
+        handleErrors(error, dispatch);
     }
 };
 
@@ -103,7 +119,7 @@ export const getAuthStateFromSession = () => async dispatch => {
 
     if (! user || ! token) {
         clearLocalStorage();
-        dispatch({ type: INVALIDATE_ALL });
+        dispatch({ type: LOGOUT });
         return;
     }
 
@@ -111,7 +127,7 @@ export const getAuthStateFromSession = () => async dispatch => {
 
     if (! auth) {
         clearLocalStorage();
-        dispatch({ type: INVALIDATE_ALL });
+        dispatch({ type: LOGOUT });
         return;
     }
 
@@ -137,7 +153,7 @@ export const fetchGroups = () => async (dispatch, getState) => {
             payload: response.data
         });
     } catch (error) {
-        handleErrors(error);
+        handleErrors(error, dispatch);
     }
 };
 
@@ -150,6 +166,6 @@ export const addUser = (formValues) => async (dispatch, getState) => {
         });
         notification.success(messages.success.REGISTER_SUCCESSFUL);
     } catch (error) {
-        handleErrors(error);
+        handleErrors(error, dispatch);
     }
 };
