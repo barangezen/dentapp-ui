@@ -1,4 +1,4 @@
-import { INVALIDATE_ALL, LOGIN, LOGOUT } from '../constants/actionTypes';
+import { LOGIN, LOGOUT } from '../constants/actionTypes';
 
 const INITIAL_STATE = {
     isLoggedIn: null,
@@ -16,7 +16,6 @@ const authReducer = (state = INITIAL_STATE, action) => {
                 user: action.payload.user 
             };
         case LOGOUT:
-        case INVALIDATE_ALL:
             return {
                 ...state,
                 isLoggedIn: false,

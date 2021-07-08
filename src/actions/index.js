@@ -1,13 +1,71 @@
 import {
     LOGIN,
     LOGOUT,
-    INVALIDATE_ALL,
     ADD_GROUPS
 } from '../constants/actionTypes';
+
+import messages from '../constants/messages';
 
 import dentapp from '../api/dentapp';
 import notification from '../utility/Notification';
 import history from '../history';
+
+const clearLocalStorage = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+}
+
+export const syncStateWithLocalStorage = () => async (dispatch, getState) =>{
+    const user = window.localStorage.getItem('user');
+    const token = window.localStorage.getItem('token');
+
+    if (user !== getState().auth.token || ! user) {
+        clearLocalStorage();
+        dispatch({
+            type: LOGOUT
+        });
+        history.push('/');
+        notification.error(messages.error.SESSION_EXPIRED);
+    }
+};
+
+const handleErrors = (error, dispatch) => {
+    if (error.response) {
+        if (error.response.status == 401) {
+            clearLocalStorage();
+            dispatch({
+                type: LOGOUT
+            });
+            history.push("/");
+            notification.error(messages.error.SESSION_EXPIRED);
+        } else {
+            let errors = [];
+
+            if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
+                errors = [...error.response.data.errors];
+            } else if (error.response.data.errors !== null && typeof error.response.data.errors == 'object') {
+                Object.values(error.response.data.errors).forEach(item => {
+                    if (Array.isArray(item)) {
+                        errors = [...errors, ...item];
+                    } else if (item !== null && typeof item == "string") {
+                        errors.push(item);
+                    }
+                });
+            }
+            if (errors.length < 1) {
+                notification.error(messages.error.UNKNOWN_ERROR);
+            } else {
+                errors.forEach(msg => {
+                    notification.error(msg);
+                });
+            }
+        }
+    } else if (error.request) {
+        notification.error(messages.error.SERVICE_UNAVAILABLE);
+    } else {
+        notification.error(messages.error.UNKNOWN_ERROR);
+    }
+};
 
 export const checkAuth = async token => {
     try {
@@ -19,16 +77,14 @@ export const checkAuth = async token => {
         return true;
     } catch (error) {
         if (! error.response) {
-            notification.error('Service unavailable. Please contact with support.');
+            notification.error(messages.error.SERVICE_UNAVAILABLE);
             return false;
         }
         if ((error.response.status) && error.response.status == 401 || error.response.status == 419) {
-            notification.error('Your session has been expired. Please login to continue');
+            notification.error(messages.error.SESSION_EXPIRED);
         } else {
-            notification.error('Service unavailable. Please contact with support.');
+            notification.error(messages.error.SERVICE_UNAVAILABLE);
         }
-        window.localStorage.removeItem('user');
-        window.localStorage.removeItem('token');
         return false;
     }
 };
@@ -53,27 +109,7 @@ export const login = (email, password) => async (dispatch, getState) => {
 
         notification.success(`Welcome back, ${response.data.user.first_name} ${response.data.user.last_name}`);
     } catch (error) {
-        if (! error.response) {
-            notification.error('Service unavailable. Please contact with support.');
-        }
-
-        let errors = [];
-
-        if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
-            errors = [...error.response.data.errors];
-        } else if (error.response.data.errors !== null && typeof error.response.data.errors == 'object') {
-            Object.values(error.response.data.errors).forEach(individual_errors_array => {
-                errors = [...errors, ...individual_errors_array];
-            });
-        }
-
-        if (errors.length == 0) {
-            notification.error('An error occurred. Please contact with support.');
-        } else {
-            errors.forEach(error_message => {
-                notification.error(error_message);
-            });
-        }
+        handleErrors(error, dispatch);
     }
 };
 
@@ -82,6 +118,7 @@ export const getAuthStateFromSession = () => async dispatch => {
     const token = window.localStorage.getItem('token');
 
     if (! user || ! token) {
+        clearLocalStorage();
         dispatch({ type: LOGOUT });
         return;
     }
@@ -89,8 +126,8 @@ export const getAuthStateFromSession = () => async dispatch => {
     const auth = await checkAuth(JSON.parse(token));
 
     if (! auth) {
-        history.push('/');
-        dispatch({ type: INVALIDATE_ALL });
+        clearLocalStorage();
+        dispatch({ type: LOGOUT });
         return;
     }
 
@@ -116,37 +153,7 @@ export const fetchGroups = () => async (dispatch, getState) => {
             payload: response.data
         });
     } catch (error) {
-        if (! error.response) {
-            notification.error("Service unavailable. Please contact with support.");
-            return;
-        }
-
-        if (error.response.status == 401) {
-            notification.error("Your session has been expired. Please login to continue.");
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            history.push("/");
-            dispatch({ type: INVALIDATE_ALL });
-            return;
-        }
-
-        let errors = [];
-
-        if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
-            errors = [...error.response.data.errors];
-        } else if (error.response.data.errors !== null && typeof error.response.data.errors == 'object') {
-            Object.values(error.response.data.errors).forEach(individual_errors_array => {
-                errors = [...errors, ...individual_errors_array];
-            });
-        }
-
-        if (errors.length == 0) {
-            notification.error('An error occurred. Please contact with support.');
-        } else {
-            errors.forEach(error_message => {
-                notification.error(error_message);
-            });
-        }        
+        handleErrors(error, dispatch);
     }
 };
 
@@ -157,39 +164,8 @@ export const addUser = (formValues) => async (dispatch, getState) => {
                 "Authorization": `Bearer ${getState().auth.token}`
             }
         });
-
-        notification.success("User has been registered.");
+        notification.success(messages.success.REGISTER_SUCCESSFUL);
     } catch (error) {
-        if (! error.response) {
-            notification.error("Service unavailable. Please contact with support.");
-            return;
-        }
-
-        if (error.response.status == 401) {
-            notification.error("Your session has been expired. Please login to continue.");
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            history.push("/");
-            dispatch({ type: INVALIDATE_ALL });
-            return;
-        }
-
-        let errors = [];
-
-        if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
-            errors = [...error.response.data.errors];
-        } else if (error.response.data.errors !== null && typeof error.response.data.errors == 'object') {
-            Object.values(error.response.data.errors).forEach(individual_errors_array => {
-                errors = [...errors, ...individual_errors_array];
-            });
-        }
-
-        if (errors.length == 0) {
-            notification.error('An error occurred. Please contact with support.');
-        } else {
-            errors.forEach(error_message => {
-                notification.error(error_message);
-            });
-        }
+        handleErrors(error, dispatch);
     }
 };

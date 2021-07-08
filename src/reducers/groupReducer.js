@@ -1,6 +1,6 @@
 import {
     ADD_GROUPS,
-    INVALIDATE_ALL
+    LOGOUT
 } from '../constants/actionTypes';
 
 const INITIAL_STATE = {
@@ -11,7 +11,7 @@ const groupReducer = (state = INITIAL_STATE, action) => {
     switch(action.type) {
         case ADD_GROUPS:
             return { ...state, groups: [...action.payload] };
-        case INVALIDATE_ALL:
+        case LOGOUT:
             return INITIAL_STATE;
         default:
             return state;
