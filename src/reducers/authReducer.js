@@ -1,4 +1,4 @@
-import { LOGIN, LOGOUT } from '../constants/actionTypes';
+import { LOGIN, LOGOUT, UPDATE_USER_PROFILE } from '../constants/actionTypes';
 
 const INITIAL_STATE = {
     isLoggedIn: null,
@@ -21,6 +21,11 @@ const authReducer = (state = INITIAL_STATE, action) => {
                 isLoggedIn: false,
                 token: null,
                 user: null
+            }
+        case UPDATE_USER_PROFILE:
+            return {
+                ...state,
+                user: action.payload.user
             }
         default:
             return state;
