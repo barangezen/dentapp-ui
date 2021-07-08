@@ -56,6 +56,7 @@ class UserProfile extends React.Component
                             Add New User
                         </h5>
                         <hr className="m-0 bg-dark"/>
+                        { this.props.roles['ADMIN'] ?
                         <form action="" className="mt-3">
                             <div className="form-row mt-2">
                                 <div className="col-6">
@@ -83,7 +84,7 @@ class UserProfile extends React.Component
                             </div>
                             <div className="form-row mt-2">
                                 <div className="col-6">
-                                    <input ref={this.registerEmailRef} type="text" className="form-control form-control-sm" />
+                                    <input ref={this.registerEmailRef} type="email" className="form-control form-control-sm" />
                                 </div>
                                 <div className="col-6">
                                     <input ref={this.registerPasswordRef} type="text" className="form-control form-control-sm" />
@@ -108,6 +109,11 @@ class UserProfile extends React.Component
                                 Register
                             </button>              
                         </form>
+                        : 
+                        <div className="mt-3 text-danger font-weight-bold border p-3 bg-light rounded">
+                            Only admins can add new users to the system.    
+                        </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -117,6 +123,7 @@ class UserProfile extends React.Component
 
 const mapStateToProps = state => {
     return {
+        roles: state.auth.user.roles,
         groups: state.group.groups
     };
 }
