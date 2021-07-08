@@ -10,6 +10,7 @@ import messages from '../constants/messages';
 import dentapp from '../api/dentapp';
 import notification from '../utility/Notification';
 import history from '../history';
+import _ from 'lodash';
 
 const clearLocalStorage = () => {
     localStorage.removeItem("user");
@@ -107,7 +108,7 @@ export const login = (email, password) => async (dispatch, getState) => {
         dispatch({
             type: LOGIN,
             payload: {
-                user: response.data.user,
+                user: { ...response.data.user, roles: _.keyBy(response.data.user.roles, "name")},
                 token: response.data.token
             }
         });
@@ -203,7 +204,7 @@ export const updateUser = (formValues) => async (dispatch, getState) => {
         dispatch({
             type: UPDATE_USER_PROFILE,
             payload: {
-                user: response.data.user
+                user: { ...response.data.user, roles: _.keyBy(response.data.user.roles, "name")}
             }
         });
 
