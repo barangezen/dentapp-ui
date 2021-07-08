@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRef } from 'react';
 import { connect } from 'react-redux';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import {
     fetchGroups,
     addUser
@@ -30,18 +31,9 @@ class UserProfile extends React.Component
         });
     }
 
-    onClickRegisterButton(e)
+    onClickRegisterButton(values)
     {
-        e.preventDefault();
-        const formValues = {
-            group_id: this.registerGroupId.current.value,
-            first_name: this.registerFirstNameRef.current.value,
-            last_name: this.registerLastNameRef.current.value,
-            email: this.registerEmailRef.current.value,
-            password: this.registerPasswordRef.current.value
-        };
-
-        this.props.addUser(formValues);
+        this.props.addUser(values);
     }
 
     render()
@@ -57,58 +49,132 @@ class UserProfile extends React.Component
                         </h5>
                         <hr className="m-0 bg-dark"/>
                         { this.props.roles['ADMIN'] ?
-                        <form action="" className="mt-3">
-                            <div className="form-row mt-2">
-                                <div className="col-6">
-                                    <label className="m-0 font-weight-bold" htmlFor="">First Name:</label>
-                                </div>
-                                <div className="col-6">
-                                    <label className="m-0 font-weight-bold" htmlFor="">Last Name:</label>
-                                </div>
-                            </div>
-                            <div className="form-row mt-2">
-                                <div className="col-6">
-                                    <input ref={this.registerFirstNameRef} type="text" className="form-control form-control-sm" />
-                                </div>
-                                <div className="col-6">
-                                    <input ref={this.registerLastNameRef} type="text" className="form-control form-control-sm" />
-                                </div>
-                            </div>
-                            <div className="form-row mt-2">
-                                <div className="col-6">
-                                    <label className="m-0 font-weight-bold" htmlFor="">E-mail:</label>
-                                </div>
-                                <div className="col-6">
-                                    <label className="m-0 font-weight-bold" htmlFor="">Password:</label>
-                                </div>
-                            </div>
-                            <div className="form-row mt-2">
-                                <div className="col-6">
-                                    <input ref={this.registerEmailRef} type="email" className="form-control form-control-sm" />
-                                </div>
-                                <div className="col-6">
-                                    <input ref={this.registerPasswordRef} type="text" className="form-control form-control-sm" />
-                                </div>
-                            </div>        
-                            <div className="form-row mt-2">
-                                <div className="col-12">
-                                    <label htmlFor="" className="m-0 font-weight-bold">Group:</label>
-                                </div>                                
-                            </div>  
-                            <div className="form-row mt-2">
-                                <div className="col-12">
-                                    <select ref={this.registerGroupId} name="" id="" className="form-control form-control-sm">
-                                        { this.renderGroups() }
-                                    </select>
-                                </div>
-                            </div>
-                            <button 
-                                className="btn btn-dark btn-block mt-3"
-                                onClick = { (e) => { this.onClickRegisterButton(e) } }
-                            >
-                                Register
-                            </button>              
-                        </form>
+                        <Formik
+                            initialValues={{
+                                first_name: "",
+                                last_name: "",
+                                email: "",
+                                password: "",
+                                group_id: "1",
+                            }}
+                            validate={
+                                values => {
+                                    const errors = {};
+                                    
+                                    if (! values.first_name) {
+                                        errors.first_name = "First name is required.";
+                                    } else if (values.first_name.length < 1) {
+                                        errors.first_name = "First name cannot be less than 1 character.";
+                                    } else if (values.first_name.length > 255) {
+                                        errors.first_name = "First name cannot be longer than 255 characters.";
+                                    } else if (!/^[a-zA-Z\s\.\'\-ığüşöçİĞÜŞÖÇ]*$/.test(values.first_name)) {
+                                        errors.first_name = "First name can only contain letters, dash, dot and apostrophe.";
+                                    }
+
+                                    if (!values.last_name) {
+                                        errors.last_name = "Last name is required.";
+                                    } else if (values.last_name.length < 1) {
+                                        errors.last_name = "Last name cannot be less than 1 character.";
+                                    } else if (values.last_name.length > 255) {
+                                        errors.last_name = "Last name cannot be longer than 255 characters.";
+                                    } else if (!/^[a-zA-Z\s\.\'\-ığüşöçİĞÜŞÖÇ]*$/.test(values.last_name)) {
+                                        errors.last_name = "Last name can only contain letters, dash, dot and apostrophe.";
+                                    }
+
+                                    if (! values.email) {
+                                        errors.email = "E-mail is required.";
+                                    } else if (! /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+                                        errors.email = "Invalid e-mail address.";
+                                    }
+
+                                    if (! values.password) {
+                                        errors.password = "Password is required.";
+                                    } else if (values.password.length < 8) {
+                                        errors.password = "Password cannot be less than 8 characters.";
+                                    } else if (values.password.length > 20) {
+                                        errors.password = "Password cannot be longer than 20 characters.";
+                                    } else if (! /[A-ZİĞÜŞÖÇ]/.test(values.password)) {
+                                        errors.password = "Password must contain at least 1 uppercase letter.";
+                                    } else if (! /\d/.test(values.password)) {
+                                        errors.password = "Password must contain at least 1 digit.";
+                                    } else if (! /^[\@\!\^\+\%\/\(\)\=\?\_\*\-\<\>\#\$\½\{\[\]\}\\\|\w]*$/.test(values.password)) {
+                                        errors.password = "Password can only contain English letters and special characters.";
+                                    }
+
+                                    return errors;
+                                }
+                            }
+                            onSubmit={(values, actions) => {
+                                this.onClickRegisterButton(values);
+                                actions.resetForm();
+                            }}
+                        >
+                            {() => (
+                                <Form>
+                                    <div className="form-row mt-3">
+                                        <div className="col-6">
+                                            <label className="font-weight-bold m-0" htmlFor="first_name">First Name:</label>
+                                        </div>
+                                        <div className="col-6">
+                                            <label className="font-weight-bold m-0" htmlFor="last_name">Last Name:</label>                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-6">
+                                            <Field type="text" id="first_name" name="first_name" className="form-control"/>
+                                        </div>
+                                        <div className="col-6">
+                                            <Field type="text" id="last_name" name="last_name" className="form-control"/>
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-6">
+                                            <ErrorMessage name="first_name" component="div" className="text-danger small font-weight-bold" />
+                                        </div>
+                                        <div className="col-6">
+                                            <ErrorMessage name="last_name" component="div" className="text-danger small font-weight-bold" />
+                                        </div>
+                                    </div>
+                                    <div className="form-row mt-3">
+                                        <div className="col-6">
+                                            <label className="font-weight-bold m-0" htmlFor="email">E-mail:</label>
+                                        </div>
+                                        <div className="col-6">
+                                            <label className="font-weight-bold m-0" htmlFor="password">Password:</label>                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-6">
+                                            <Field type="email" id="email" name="email" className="form-control" />
+                                        </div>
+                                        <div className="col-6">
+                                            <Field type="password" id="password" name="password" className="form-control" />
+                                        </div>
+                                    </div>
+                                    <div className="form-row">
+                                        <div className="col-6">
+                                            <ErrorMessage name="email" component="div" className="text-danger small font-weight-bold" />
+                                        </div>
+                                        <div className="col-6">
+                                            <ErrorMessage name="password" component="div" className="text-danger small font-weight-bold" />
+                                        </div>
+                                    </div>
+                                    <div className="form-row mt-2">
+                                        <div className="col-12">
+                                            <label htmlFor="group_id" className="m-0 font-weight-bold">Group:</label>
+                                        </div>
+                                    </div>
+                                    <div className="form-row mt-2">
+                                        <div className="col-12">
+                                            <Field name="group_id" as="select" id="group_id" className="form-control form-control-sm">
+                                                {this.renderGroups()}
+                                            </Field>
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="btn btn-block bg-dark text-white mt-3">
+                                        Submit
+                                    </button>
+                                </Form>    
+                            )}
+                        </Formik>
                         : 
                         <div className="mt-3 text-danger font-weight-bold border p-3 bg-light rounded">
                             Only admins can add new users to the system.    
