@@ -1,7 +1,8 @@
 import {
     LOGIN,
     LOGOUT,
-    ADD_GROUPS
+    ADD_GROUPS,
+    UPDATE_USER_PROFILE
 } from '../constants/actionTypes';
 
 import messages from '../constants/messages';
@@ -19,7 +20,11 @@ export const syncStateWithLocalStorage = () => async (dispatch, getState) =>{
     const user = window.localStorage.getItem('user');
     const token = window.localStorage.getItem('token');
 
-    if (user !== getState().auth.token || ! user) {
+    if (token !== JSON.stringify(getState().auth.token) 
+        || user !== JSON.stringify(getState().auth.user)
+        || ! user
+        || ! token
+    ) {
         clearLocalStorage();
         dispatch({
             type: LOGOUT
@@ -69,7 +74,7 @@ const handleErrors = (error, dispatch) => {
 
 export const checkAuth = async token => {
     try {
-        const response = await dentapp.get('/check', {
+        await dentapp.get('/check', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -159,7 +164,7 @@ export const fetchGroups = () => async (dispatch, getState) => {
 
 export const addUser = (formValues) => async (dispatch, getState) => {
     try {
-        const response = await dentapp.post("/register", { ...formValues }, {
+        await dentapp.post("/register", { ...formValues }, {
             headers: {
                 "Authorization": `Bearer ${getState().auth.token}`
             }
@@ -169,3 +174,43 @@ export const addUser = (formValues) => async (dispatch, getState) => {
         handleErrors(error, dispatch);
     }
 };
+
+export const logout = () => async (dispatch, getState) => {
+    let token = false;    
+
+    try {
+        await dentapp.get('/logout', {
+            headers: {
+                "Authorization": `Bearer ${getState().auth.token}`
+            }
+        });
+    } catch (error) {
+        handleErrors(error, dispatch);
+    } finally {
+        dispatch({ type: LOGOUT });
+        clearLocalStorage();
+    }    
+};
+
+export const updateUser = (formValues) => async (dispatch, getState) => {
+    try {
+        const response = await dentapp.put(`/users/${getState().auth.user.id}`, formValues, {
+            headers: {
+                "Authorization": `Bearer ${getState().auth.token}`
+            }
+        });
+
+        dispatch({
+            type: UPDATE_USER_PROFILE,
+            payload: {
+                user: response.data.user
+            }
+        });
+
+        window.localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        notification.success(messages.success.UPDATE_SUCCESSFUL);
+    } catch (error) {
+        handleErrors(error, dispatch);
+    }
+}

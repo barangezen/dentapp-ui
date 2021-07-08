@@ -5,6 +5,7 @@ export default {
         SESSION_EXPIRED: "Your session has been expired. Please login to continue."
     },
     success: {
-        REGISTER_SUCCESSFUL: "User has been registered."
+        REGISTER_SUCCESSFUL: "User has been registered.",
+        UPDATE_SUCCESSFUL: "Your profile has been updated."
     }
 };
