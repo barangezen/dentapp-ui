@@ -11,33 +11,44 @@ import dentapp from '../api/dentapp';
 import notification from '../utility/Notification';
 import history from '../history';
 
-const printErrors = response_errors => {
-    let errors = [];
-
-    if (response_errors && Array.isArray(response_errors)) {
-        errors = [...response_errors];
-    } else if (response_errors !== null && typeof response_errors == 'object') {
-        Object.values(response_errors).forEach(individual_errors_array => {
-            errors = [...errors, ...individual_errors_array];
-        });
-    }
-
-    if (errors.length == 0) {
-        notification.error(messages.error.UNKNOWN_ERROR);
-        return;
-    }
-
-    errors.forEach(msg => {
-        notification.error(msg);
-    });
-}
-
-const beforeInvalidation = () => {
-    notification.error(messages.error.SESSION_EXPIRED);
+const clearLocalStorage = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    history.push("/");
-    return;
+}
+
+const handleErrors = (error) => {
+    if (error.response) {
+        if (error.response.status == 401) {
+            clearLocalStorage();
+            history.push("/");
+            notification.error(messages.error.SESSION_EXPIRED);
+        } else {
+            let errors = [];
+
+            if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
+                errors = [...error.response.data.errors];
+            } else if (error.response.data.errors !== null && typeof error.response.data.errors == 'object') {
+                Object.values(error.response.data.errors).forEach(item => {
+                    if (Array.isArray(item)) {
+                        errors = [...errors, ...item];
+                    } else if (item !== null && typeof item == "string") {
+                        errors.push(item);
+                    }
+                });
+            }
+            if (errors.length < 1) {
+                notification.error(messages.error.UNKNOWN_ERROR);
+            } else {
+                errors.forEach(msg => {
+                    notification.error(msg);
+                });
+            }
+        }
+    } else if (error.request) {
+        notification.error(messages.error.SERVICE_UNAVAILABLE);
+    } else {
+        notification.error(messages.error.UNKNOWN_ERROR);
+    }
 };
 
 export const checkAuth = async token => {
@@ -82,12 +93,7 @@ export const login = (email, password) => async (dispatch, getState) => {
 
         notification.success(`Welcome back, ${response.data.user.first_name} ${response.data.user.last_name}`);
     } catch (error) {
-        if (! error.response) {
-            notification.error(messages.error.SERVICE_UNAVAILABLE);
-            return;
-        }
-
-        printErrors(error.response.data.errors);
+        handleErrors(error);
     }
 };
 
@@ -96,15 +102,15 @@ export const getAuthStateFromSession = () => async dispatch => {
     const token = window.localStorage.getItem('token');
 
     if (! user || ! token) {
-        dispatch({ type: LOGOUT });
+        clearLocalStorage();
+        dispatch({ type: INVALIDATE_ALL });
         return;
     }
 
     const auth = await checkAuth(JSON.parse(token));
 
     if (! auth) {
-        window.localStorage.removeItem('user');
-        window.localStorage.removeItem('token');
+        clearLocalStorage();
         dispatch({ type: INVALIDATE_ALL });
         return;
     }
@@ -131,17 +137,7 @@ export const fetchGroups = () => async (dispatch, getState) => {
             payload: response.data
         });
     } catch (error) {
-        if (! error.response) {
-            notification.error(messages.error.SERVICE_UNAVAILABLE);
-            return;
-        }
-
-        if (error.response.status == 401) {
-            beforeInvalidation();
-            dispatch({ type: INVALIDATE_ALL });
-            return;
-        }
-        printErrors(error.response.data.errors);
+        handleErrors(error);
     }
 };
 
@@ -154,15 +150,6 @@ export const addUser = (formValues) => async (dispatch, getState) => {
         });
         notification.success(messages.success.REGISTER_SUCCESSFUL);
     } catch (error) {
-        if (! error.response) {
-            notification.error(messages.error.SERVICE_UNAVAILABLE);
-            return;
-        }
-        if (error.response.status == 401) {
-            beforeInvalidation();
-            dispatch({ type: INVALIDATE_ALL });
-            return;
-        }
-        printErrors(error.response.data.errors);
+        handleErrors(error);
     }
 };
