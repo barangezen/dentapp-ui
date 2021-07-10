@@ -204,7 +204,10 @@ export const updateUser = (formValues) => async (dispatch, getState) => {
         dispatch({
             type: UPDATE_USER_PROFILE,
             payload: {
-                user: { ...response.data.user, roles: _.keyBy(response.data.user.roles, "name")}
+                user: {
+                    ...response.data.user, 
+                    roles: _.keyBy(response.data.user.roles, "name")
+                }
             }
         });
 

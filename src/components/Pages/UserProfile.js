@@ -1,8 +1,34 @@
 import React from 'react';
-import CreateUserForm from '../Forms/CreateUserForm';
-import UpdateUserProfileForm from '../Forms/UpdateUserProfileForm';
+import { connect } from 'react-redux';
+import ReusableForm from '../Forms/ReusableForm';
+import {
+    fetchGroups,
+    addUser,
+    updateUser
+} from '../../actions/index';
+import * as createUserForm from '../Forms/ConcreteForms/createUser';
+import * as updateUserForm from '../Forms/ConcreteForms/updateUser';
 class UserProfile extends React.Component
 {  
+    componentDidMount() {
+        this.props.fetchGroups();
+    }
+
+    onSubmitCreateUser = (formValues = {}, formActions) => {
+        this.props.addUser(formValues);
+        formActions.resetForm();
+    };
+
+    onSubmitUpdateUser = (formValues = {}, formActions) => {
+        const sanitizedFormValues = {};
+        Object.keys(formValues).forEach(key => {
+            if (formValues[key].length > 0) {
+                sanitizedFormValues[key] = formValues[key];
+            }
+        });
+        this.props.updateUser(sanitizedFormValues);
+        formActions.resetForm();
+    };
 
     render()
     {
@@ -12,15 +38,41 @@ class UserProfile extends React.Component
                 <hr className="m-0 bg-dark"/>
                 <div className="row">
                     <div className="col-6">
-                        <CreateUserForm title="Add New User"/>
+                        <ReusableForm 
+                            title={createUserForm.title}
+                            initialValues={createUserForm.initialValues}
+                            fields={createUserForm.fields(this.props.groups)}
+                            validationSchema={createUserForm.validationSchema()}
+                            onSubmit={this.onSubmitCreateUser}
+                            actions={createUserForm.actions()}
+                        />
                     </div>
                     <div className="col-6">
-                        <UpdateUserProfileForm title="Update Your Profile"/>
+                        <ReusableForm
+                            title={updateUserForm.title}
+                            initialValues={updateUserForm.initialValues(this.props.user)}
+                            fields={updateUserForm.fields(this.props.groups)}
+                            validationSchema={updateUserForm.validationSchema()}
+                            onSubmit={this.onSubmitUpdateUser}
+                            actions={updateUserForm.actions()}
+                        />
                     </div>
+                    
                 </div>
             </div>
         );
     }
 }
 
-export default UserProfile;
+const mapStateToProps = state => ({
+    user: state.auth.user,
+    groups: state.group.groups
+});
+
+const mapDispatchToProps = {
+    fetchGroups: fetchGroups,
+    addUser: addUser,
+    updateUser: updateUser
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserProfile);
