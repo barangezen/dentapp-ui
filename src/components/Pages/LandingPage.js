@@ -1,8 +1,8 @@
 import React from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
-import Header from './Header';
-import history from '../history';
-import UserProfile from './Pages/UserProfile';
+import Header from '../Header';
+import history from '../../history';
+import UserManagementPage from './UserManagementPage';
 class LandingPage extends React.Component
 {
     render()
@@ -15,7 +15,7 @@ class LandingPage extends React.Component
                     </div>
                     <div className="col-10">
                         <Switch>
-                            <Route path="/" exact component={ UserProfile } />
+                            <Route path="/" exact component={ UserManagementPage } />
                         </Switch>
                     </div>
                 </div>

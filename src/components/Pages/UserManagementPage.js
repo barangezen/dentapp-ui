@@ -8,7 +8,7 @@ import {
 } from '../../actions/index';
 import * as createUserForm from '../Forms/ConcreteForms/createUser';
 import * as updateUserForm from '../Forms/ConcreteForms/updateUser';
-class UserProfile extends React.Component
+class UserManagementPage extends React.Component
 {  
     componentDidMount() {
         this.props.fetchGroups();
@@ -41,8 +41,8 @@ class UserProfile extends React.Component
                         <ReusableForm 
                             title={createUserForm.title}
                             initialValues={createUserForm.initialValues}
-                            fields={createUserForm.fields(this.props.groups)}
                             validationSchema={createUserForm.validationSchema()}
+                            fields={createUserForm.fields(this.props.groups)}
                             onSubmit={this.onSubmitCreateUser}
                             actions={createUserForm.actions()}
                         />
@@ -51,8 +51,8 @@ class UserProfile extends React.Component
                         <ReusableForm
                             title={updateUserForm.title}
                             initialValues={updateUserForm.initialValues(this.props.user)}
-                            fields={updateUserForm.fields(this.props.groups)}
                             validationSchema={updateUserForm.validationSchema()}
+                            fields={updateUserForm.fields}
                             onSubmit={this.onSubmitUpdateUser}
                             actions={updateUserForm.actions()}
                         />
@@ -75,4 +75,4 @@ const mapDispatchToProps = {
     updateUser: updateUser
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserProfile);
+export default connect(mapStateToProps, mapDispatchToProps)(UserManagementPage);

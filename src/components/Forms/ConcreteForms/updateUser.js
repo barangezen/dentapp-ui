@@ -49,7 +49,7 @@ export const validationSchema = () => Yup.object({
         .required('Password is required.')
 });
 
-export const fields = (groups) => ([
+export const fields = [
     {
         field: "input",
         name: "first_name",
@@ -79,11 +79,10 @@ export const fields = (groups) => ([
         name: "existing_password",
         type: "password",
         label: "Existing Password"
-
     }
-]);
+];
 
-export const actions = (onSubmit) => (
+export const actions = () => (
     <div className="mt-3 d-flex justify-content-start align-items-center">
         <button
             type="submit"
