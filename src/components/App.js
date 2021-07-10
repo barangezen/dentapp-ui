@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import LoginPage from './LoginPage';
+import LoginPage from './Pages/LoginPage';
 import '../styles/notification.css'
-import LandingPage from './LandingPage';
+import LandingPage from './Pages/LandingPage';
 import LoadingSpinner from './LoadingSpinner';
 import { getAuthStateFromSession, syncStateWithLocalStorage } from '../actions/index';
 import '../styles/app.css';
