@@ -9,11 +9,11 @@ class LandingPage extends React.Component
     {
         return(
             <Router history={ history }>
-                <div className="row m-0">
-                    <div className="col-2 p-0 bg-dark" style={{ height: '100vh' }}>
+                <div className="row m-0 flex-nowrap">
+                    <div className="flex-shrink-0 p-2 bg-dark" style={{ height: '100vh' }}>
                         <Header />
                     </div>
-                    <div className="col-10">
+                    <div className="flex-grow-1">
                         <Switch>
                             <Route path="/" exact component={ UserManagementPage } />
                         </Switch>

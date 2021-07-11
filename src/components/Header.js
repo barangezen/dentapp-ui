@@ -9,7 +9,7 @@ class Header extends React.Component
     render()
     {
         return(
-            <div id="header" className="text-light pl-4 pr-4 d-flex flex-column justify-content-between align-items-start border h-100">
+            <div id="header" className="text-light pr-2 pl-2 d-flex flex-column justify-content-between align-items-start h-100">
                 <div>
                     <h5 className="m-0 p-3 font-weight-bold">Dentapp</h5>
                     <hr className="bg-light m-0" />
@@ -17,7 +17,7 @@ class Header extends React.Component
                         <Link to="/">
                             <li className="p-2 pl-3 pr-3">
                                 <i className="fas fa-users"></i>
-                                <span className="ml-3">User Profile</span>
+                                <span className="ml-3">User Management</span>
                             </li>
                         </Link>
                         <Link to="/appointments">
@@ -35,7 +35,7 @@ class Header extends React.Component
                         <Link to="treatment-management">
                             <li className="p-2 pl-3 pr-3">
                                 <i className="fas fa-pen-square"></i>
-                                <span className="ml-3">Treatment Mgmt.</span>
+                                <span className="ml-3">Treatment Management</span>
                             </li>
                         </Link>
                     </ul>
